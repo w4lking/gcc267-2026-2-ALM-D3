@@ -1,0 +1,9 @@
+{
+  "name": "gcc267-monitoria",
+  "version": "1.0.0",
+  "description": "Sistema de monitoria e atendimento ao aluno",
+  "scripts": {
+    "lint": "echo 'lint ok'",
+    "build": "echo 'build ok'"
+  }
+}
