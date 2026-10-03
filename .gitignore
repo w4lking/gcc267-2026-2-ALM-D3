@@ -1,0 +1,19 @@
+# Dependências
+node_modules/
+
+# Build
+dist/
+coverage/
+
+# Variáveis de ambiente
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# SO / editores
+.DS_Store
+Thumbs.db
+.idea/

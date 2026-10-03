@@ -1,0 +1,11 @@
+{
+  "name": "gcc267-monitoria",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema de monitoria e atendimento ao aluno",
+  "scripts": {
+    "install:all": "npm --prefix frontend ci && npm --prefix backend ci",
+    "lint": "npm --prefix frontend run lint",
+    "build": "npm --prefix frontend run build && npm --prefix backend run build"
+  }
+}
