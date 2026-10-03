@@ -1,14 +1,13 @@
-# Monitoria e Atendimento ao Aluno
+Monitoria e Atendimento ao Aluno
 
 Sistema para gerenciar ofertas de monitoria, agendamentos e frequência na UFLA.
+Equipe
 
-## Equipe
+    Layon Walker
+    Marcos Vinicius
+    Alexander Olegário
 
-- Layon Walker
-- Marcos Vinicius
-- Alexander Olegário
+Domínio
 
-## Domínio
-
-D3 — Monitoria e atendimento ao aluno  
+D3 — Monitoria e atendimento ao aluno
 Contextos: Oferta · Agendamento · Frequência
