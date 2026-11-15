@@ -1,6 +1,6 @@
 # Contrato da API
 
-**Status:** rascunho para discussão da equipe.
+**Status:** aprovado pela equipe.
 
 Contrato entre frontend e backend. Qualquer mudança aqui deve ser combinada com a
 equipe e feita no mesmo PR que altera a implementação.
