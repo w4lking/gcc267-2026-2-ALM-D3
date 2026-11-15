@@ -44,6 +44,35 @@ cd backend  && npm run dev     # http://localhost:3000  (GET /health)
 
 Variáveis de ambiente do backend: copie `backend/.env.example` para `backend/.env`.
 
+## Testes
+
+Backend com `node:test` (nativo do Node) e `supertest`. Os testes rodam no CI em todo push e PR.
+
+```bash
+cd backend
+npm test            # roda todos os testes
+```
+
+Como escrever:
+
+- Arquivos em `backend/test/`, com nome `<contexto>.test.js` (ex.: `agendamento.test.js`).
+- Importe o `app` de `src/app.js` (nunca o `index.js`, que liga o servidor).
+- Registre rotas e middlewares no `app.js`; o `index.js` só chama `listen`.
+- Cada regra de negócio do [docs/api.md](docs/api.md) deve ter ao menos um teste,
+  incluindo os casos de erro (status e `erro.codigo`).
+
+```js
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const request = require('supertest');
+const app = require('../src/app');
+
+test('GET /health responde 200', async () => {
+  const resposta = await request(app).get('/health');
+  assert.equal(resposta.status, 200);
+});
+```
+
 ## Convenções de código
 
 - **Idioma:** domínio e documentação em português (`oferta`, `agendamento`, `frequencia`);
