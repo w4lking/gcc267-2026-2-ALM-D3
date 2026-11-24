@@ -1,0 +1,126 @@
+// Modelo de dados do sistema de monitoria.
+// Fonte da verdade das regras: docs/api.md e docs/adr/0004-ofertas-recorrentes-e-sessoes.md
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Papel {
+  ALUNO
+  MONITOR
+}
+
+enum StatusOferta {
+  ABERTA
+  ENCERRADA
+}
+
+enum DiaSemana {
+  SEG
+  TER
+  QUA
+  QUI
+  SEX
+  SAB
+}
+
+enum StatusSessao {
+  PREVISTA
+  CANCELADA
+}
+
+enum StatusAgendamento {
+  AGENDADO
+  CANCELADO
+  REALIZADO
+}
+
+model Usuario {
+  id           Int           @id @default(autoincrement())
+  nome         String
+  email        String        @unique
+  papel        Papel
+  criadoEm     DateTime      @default(now())
+  ofertas      Oferta[]
+  agendamentos Agendamento[]
+}
+
+// Monitoria recorrente de uma disciplina (ADR-0004).
+model Oferta {
+  id               Int          @id @default(autoincrement())
+  disciplina       String
+  codigoDisciplina String
+  descricao        String?
+  local            String
+  vagas            Int // vagas por sessão
+  dataInicio       String // AAAA-MM-DD
+  dataFim          String // AAAA-MM-DD
+  status           StatusOferta @default(ABERTA)
+  monitorId        Int
+  monitor          Usuario      @relation(fields: [monitorId], references: [id])
+  horarios         Horario[]
+  sessoes          Sessao[]
+  criadoEm         DateTime     @default(now())
+  atualizadoEm     DateTime     @updatedAt
+
+  @@index([monitorId])
+  @@index([codigoDisciplina])
+}
+
+// Horário semanal de uma oferta, no fuso America/Sao_Paulo.
+model Horario {
+  id         Int       @id @default(autoincrement())
+  ofertaId   Int
+  oferta     Oferta    @relation(fields: [ofertaId], references: [id])
+  diaSemana  DiaSemana
+  horaInicio String // HH:mm
+  horaFim    String // HH:mm
+
+  @@unique([ofertaId, diaSemana, horaInicio])
+}
+
+// Ocorrência concreta de uma oferta, gerada na criação da oferta.
+model Sessao {
+  id           Int           @id @default(autoincrement())
+  ofertaId     Int
+  oferta       Oferta        @relation(fields: [ofertaId], references: [id])
+  inicio       DateTime // UTC
+  fim          DateTime // UTC
+  vagas        Int
+  status       StatusSessao  @default(PREVISTA)
+  agendamentos Agendamento[]
+
+  @@unique([ofertaId, inicio])
+  @@index([inicio])
+}
+
+// Um aluno só pode ter um agendamento AGENDADO por sessão: regra validada no código,
+// pois o SQLite via Prisma não expressa índice único parcial.
+model Agendamento {
+  id           Int               @id @default(autoincrement())
+  sessaoId     Int
+  sessao       Sessao            @relation(fields: [sessaoId], references: [id])
+  alunoId      Int
+  aluno        Usuario           @relation(fields: [alunoId], references: [id])
+  status       StatusAgendamento @default(AGENDADO)
+  criadoEm     DateTime          @default(now())
+  atualizadoEm DateTime          @updatedAt
+  frequencia   Frequencia?
+
+  @@index([sessaoId, status])
+  @@index([alunoId])
+}
+
+model Frequencia {
+  id            Int         @id @default(autoincrement())
+  agendamentoId Int         @unique
+  agendamento   Agendamento @relation(fields: [agendamentoId], references: [id])
+  presente      Boolean
+  observacao    String?
+  registradoEm  DateTime    @default(now())
+}

@@ -29,9 +29,35 @@ docs/       visão do produto, equipe, padrões e ADRs (docs/adr/)
 .github/    CI (GitHub Actions) e template de PR
 ```
 
+## Banco de dados
+
+SQLite com Prisma 7 ([ADR-0002](docs/adr/0002-persistencia-sqlite-prisma.md)).
+Schema em `backend/prisma/schema.prisma`; client compartilhado em `backend/src/comum/prisma.js`
+(sempre importe dele, nunca crie outro `PrismaClient`).
+
+Primeira vez, dentro de `backend/`:
+
+```bash
+cp .env.example .env
+npm ci                  # também gera o Prisma Client em generated/ (não versionado)
+npm run db:migrate      # cria o dev.db aplicando as migrations
+npm run db:seed         # dados de exemplo (apaga os dados atuais)
+```
+
+| Script | Para quê |
+|---|---|
+| `npm run db:migrate -- --name <descricao>` | Após alterar o schema: cria a migration e regenera o client |
+| `npm run db:seed` | Recria os dados de exemplo |
+| `npm run db:reset` | Apaga o banco, reaplica as migrations e roda o seed |
+| `npm run db:studio` | Interface web para ver e editar os dados |
+
+- Commite a pasta da migration junto com a mudança no schema. Nunca edite uma migration já mergeada.
+- Se a `develop` recebeu uma migration enquanto você alterava o schema, apague a sua migration
+  local, atualize a branch e rode `db:migrate` de novo.
+
 ## Comandos
 
-Requer Node.js 22.
+Requer Node.js 22 ou superior (versão LTS).
 
 ```bash
 npm run install:all            # instala frontend e backend (na raiz)

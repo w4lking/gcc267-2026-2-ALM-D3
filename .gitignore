@@ -5,9 +5,10 @@ node_modules/
 dist/
 coverage/
 
-# Banco SQLite local (ADR-0002)
+# Banco SQLite local e Prisma Client gerado (ADR-0002)
 *.db
 *.db-journal
+backend/generated/
 
 # Variáveis de ambiente
 .env
