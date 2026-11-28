@@ -36,6 +36,18 @@ Todas as respostas de erro seguem o formato:
 | `403` | Usuário não tem o papel ou a permissão para a operação |
 | `404` | Recurso não encontrado |
 | `409` | Violação de regra de negócio (sem vagas, agendamento duplicado etc.) |
+| `500` | Erro inesperado no servidor (detalhes só no log) |
+
+Códigos gerais, válidos em qualquer rota (os específicos estão nas regras de cada rota):
+
+| Status | Código | Quando |
+|---|---|---|
+| `400` | `JSON_INVALIDO` | Corpo da requisição não é um JSON válido |
+| `401` | `IDENTIFICACAO_OBRIGATORIA` | Rota exige usuário e o `X-Usuario-Id` não foi enviado |
+| `401` | `USUARIO_NAO_ENCONTRADO` | `X-Usuario-Id` enviado com id inválido ou inexistente, **em qualquer rota**; o frontend deve descartar o usuário salvo |
+| `403` | `PAPEL_NAO_PERMITIDO` | Usuário identificado, mas com papel diferente do exigido |
+| `404` | `ROTA_NAO_ENCONTRADA` | Método ou caminho inexistente |
+| `500` | `ERRO_INTERNO` | Erro inesperado |
 
 ## Modelo de dados
 
