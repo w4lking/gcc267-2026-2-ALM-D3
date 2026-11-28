@@ -86,15 +86,29 @@ Como escrever:
 - Registre rotas e middlewares no `app.js`; o `index.js` só chama `listen`.
 - Cada regra de negócio do [docs/api.md](docs/api.md) deve ter ao menos um teste,
   incluindo os casos de erro (status e `erro.codigo`).
+- Testes que usam o banco importam `test/ajuda/banco.js` **antes** do `app`: cada arquivo
+  de teste ganha um SQLite temporário com as migrations aplicadas (o `dev.db` não é tocado).
+- Só arquivos `*.test.js` são executados; utilitários ficam em `test/ajuda/`.
 
 ```js
-const { test } = require('node:test');
+const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const request = require('supertest');
+
+const { prisma, limparBanco, encerrarBanco } = require('./ajuda/banco'); // antes do app
 const app = require('../src/app');
 
-test('GET /health responde 200', async () => {
-  const resposta = await request(app).get('/health');
+let monitor;
+before(async () => {
+  await limparBanco();
+  monitor = await prisma.usuario.create({
+    data: { nome: 'Carla', email: 'carla@teste.br', papel: 'MONITOR' },
+  });
+});
+after(encerrarBanco);
+
+test('GET /usuarios/:id responde 200', async () => {
+  const resposta = await request(app).get(`/usuarios/${monitor.id}`);
   assert.equal(resposta.status, 200);
 });
 ```
@@ -106,8 +120,20 @@ test('GET /health responde 200', async () => {
 - **Frontend:** TypeScript estrito; componentes funcionais com hooks; um componente por
   arquivo em `PascalCase.tsx`; organize por contexto (`src/oferta/`, `src/agendamento/`, ...).
 - **Backend:** rotas REST no plural e em minúsculas (`/ofertas`, `/agendamentos`,
-  `/frequencias`); organize por contexto (`src/oferta/`, ...); configurações via `.env`,
-  nunca no código.
+  `/frequencias`); configurações via `.env`, nunca no código. Organização:
+
+  ```
+  src/comum/         prisma.js, erros.js, identificacao.js, tratamentoErros.js
+  src/<contexto>/    usuario, oferta, agendamento, frequencia
+    rotas.js         Router do Express: valida entrada, chama o serviço, responde
+    servico.js       regras de negócio e acesso ao banco (Prisma)
+  ```
+
+  - Monte o router no `app.js`, entre `identificarUsuario` e `rotaNaoEncontrada`.
+  - Proteja rotas com `exigirUsuario` ou `exigirPapel('MONITOR')` de `comum/identificacao.js`.
+  - Para erros de negócio, lance os helpers de `comum/erros.js`
+    (`throw conflito('SESSAO_SEM_VAGAS', '...')`); nunca monte a resposta de erro na rota.
+    O Express 5 captura erros de funções `async` sozinho, sem `try/catch`.
 - Siga o estilo do código ao redor; não adicione dependências sem necessidade clara.
 - Decisões de arquitetura relevantes viram um ADR em `docs/adr/` (numeração sequencial,
   mesmo formato do [ADR-0000](docs/adr/0000-registro-de-decisoes.md)).

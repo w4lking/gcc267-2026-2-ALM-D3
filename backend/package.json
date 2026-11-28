@@ -7,7 +7,7 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "build": "node --check src/index.js && node --check src/app.js",
-    "test": "node --test",
+    "test": "node --test \"test/**/*.test.js\"",
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
