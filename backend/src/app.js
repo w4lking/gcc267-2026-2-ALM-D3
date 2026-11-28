@@ -19,6 +19,7 @@ app.use(identificarUsuario);
 app.use(require('./usuario/rotas'));
 app.use(require('./oferta/rotas'));
 app.use(require('./agendamento/rotas'));
+app.use(require('./frequencia/rotas'));
 
 app.use(rotaNaoEncontrada);
 app.use(tratarErros);

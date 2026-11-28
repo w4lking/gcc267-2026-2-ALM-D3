@@ -51,6 +51,9 @@ Códigos gerais, válidos em qualquer rota (os específicos estão nas regras de
 | `404` | `ROTA_NAO_ENCONTRADA` | Método ou caminho inexistente |
 | `500` | `ERRO_INTERNO` | Erro inesperado |
 
+Recursos inexistentes respondem `404` com `USUARIO_NAO_ENCONTRADO`, `OFERTA_NAO_ENCONTRADA`,
+`SESSAO_NAO_ENCONTRADA` ou `AGENDAMENTO_NAO_ENCONTRADO`.
+
 ## Modelo de dados
 
 ```mermaid
@@ -206,7 +209,7 @@ Regras:
   ficar menor que os agendamentos ativos de nenhuma delas (`409 VAGAS_INSUFICIENTES`).
 - **Encerrar** é irreversível: as sessões futuras viram `CANCELADA` e os agendamentos
   `AGENDADO` delas viram `CANCELADO`. Sessões passadas e frequências são mantidas.
-- Só o monitor que criou a oferta pode alterá-la (`403`). Oferta encerrada não aceita alteração (`409`).
+- Só o monitor que criou a oferta pode alterá-la (`403`). Oferta encerrada não aceita alteração (`409 OFERTA_ENCERRADA`).
 
 ### Sessões
 
@@ -241,7 +244,7 @@ Visto por qualquer outro usuário identificado:
 Regras:
 - Sem `X-Usuario-Id`: `401`. Para ver só as vagas, use `GET /ofertas/:id/sessoes`.
 - Para quem não é o monitor dono, a lista `agendados` traz só os agendamentos com status `AGENDADO`.
-- Cancelar só é permitido com a sessão `PREVISTA` e antes do `inicio` (`409`).
+- Cancelar só é permitido com a sessão `PREVISTA` e antes do `inicio` (`409 SESSAO_NAO_CANCELAVEL`).
   Os agendamentos `AGENDADO` dela viram `CANCELADO`.
 
 ### Agendamentos
@@ -265,8 +268,8 @@ Regras:
   não ter começado (`409 SESSAO_INDISPONIVEL`).
 - Precisa ter vaga (`409 SESSAO_SEM_VAGAS`).
 - O aluno não pode ter outro agendamento `AGENDADO` na mesma sessão (`409 AGENDAMENTO_DUPLICADO`).
-- Monitor consultando sessão de oferta que não é dele: `403`.
-- Cancelar só é permitido com status `AGENDADO` e antes do `inicio` da sessão (`409`).
+- Monitor consultando sessão de oferta que não é dele: `403 ACESSO_NEGADO`.
+- Cancelar só é permitido com status `AGENDADO` e antes do `inicio` da sessão (`409 AGENDAMENTO_NAO_CANCELAVEL`).
   O cancelamento libera a vaga.
 
 ### Frequências
@@ -287,7 +290,7 @@ Regras:
 Regras:
 - Só o monitor da oferta do agendamento pode registrar (`403`).
 - Só depois do `inicio` da sessão (`409 SESSAO_NAO_INICIADA`).
-- O agendamento precisa estar `AGENDADO` (`409`); ao registrar, passa para `REALIZADO`.
+- O agendamento precisa estar `AGENDADO` (`409 AGENDAMENTO_NAO_ATIVO`); ao registrar, passa para `REALIZADO`.
 - Uma frequência por agendamento (`409 FREQUENCIA_JA_REGISTRADA`).
 
 ## Fluxo principal (transação entre contextos)
