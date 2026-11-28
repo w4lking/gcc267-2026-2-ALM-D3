@@ -18,6 +18,7 @@ app.use(identificarUsuario);
 // Rotas dos contextos (cada router declara os caminhos completos).
 app.use(require('./usuario/rotas'));
 app.use(require('./oferta/rotas'));
+app.use(require('./agendamento/rotas'));
 
 app.use(rotaNaoEncontrada);
 app.use(tratarErros);
