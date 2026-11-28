@@ -15,7 +15,8 @@ app.get('/health', (req, res) => {
 
 app.use(identificarUsuario);
 
-// Rotas dos contextos: app.use('/<recurso>', require('./<contexto>/rotas'));
+// Rotas dos contextos (cada router declara os caminhos completos).
+app.use(require('./usuario/rotas'));
 
 app.use(rotaNaoEncontrada);
 app.use(tratarErros);

@@ -43,9 +43,11 @@ Códigos gerais, válidos em qualquer rota (os específicos estão nas regras de
 | Status | Código | Quando |
 |---|---|---|
 | `400` | `JSON_INVALIDO` | Corpo da requisição não é um JSON válido |
+| `400` | `DADOS_INVALIDOS` | Campo obrigatório ausente ou com formato errado; a mensagem indica o campo |
 | `401` | `IDENTIFICACAO_OBRIGATORIA` | Rota exige usuário e o `X-Usuario-Id` não foi enviado |
 | `401` | `USUARIO_INVALIDO` | `X-Usuario-Id` enviado com id inválido ou inexistente, **em qualquer rota**; o frontend deve descartar o usuário salvo |
 | `403` | `PAPEL_NAO_PERMITIDO` | Usuário identificado, mas com papel diferente do exigido |
+| `403` | `ACESSO_NEGADO` | O recurso pertence a outro usuário (ex.: oferta de outro monitor) |
 | `404` | `ROTA_NAO_ENCONTRADA` | Método ou caminho inexistente |
 | `500` | `ERRO_INTERNO` | Erro inesperado |
 

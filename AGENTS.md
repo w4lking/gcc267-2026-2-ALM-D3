@@ -129,7 +129,9 @@ test('GET /usuarios/:id responde 200', async () => {
     servico.js       regras de negócio e acesso ao banco (Prisma)
   ```
 
-  - Monte o router no `app.js`, entre `identificarUsuario` e `rotaNaoEncontrada`.
+  - Cada `rotas.js` declara os caminhos completos (`/ofertas/:id`) e é montado com
+    `app.use(require('./<contexto>/rotas'))` no `app.js`, entre `identificarUsuario` e `rotaNaoEncontrada`.
+  - Valide a entrada com `comum/validacao.js` (erros viram `400 DADOS_INVALIDOS`).
   - Proteja rotas com `exigirUsuario` ou `exigirPapel('MONITOR')` de `comum/identificacao.js`.
   - Para erros de negócio, lance os helpers de `comum/erros.js`
     (`throw conflito('SESSAO_SEM_VAGAS', '...')`); nunca monte a resposta de erro na rota.
