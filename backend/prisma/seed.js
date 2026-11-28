@@ -4,34 +4,8 @@
 
 const prisma = require('../src/comum/prisma');
 
-const FUSO_BRASILIA = '-03:00'; // America/Sao_Paulo, sem horário de verão desde 2019
-const DIAS_SEMANA = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'];
-
-function dataISO(data) {
-  return data.toISOString().slice(0, 10);
-}
-
-function somarDias(data, dias) {
-  const resultado = new Date(data);
-  resultado.setUTCDate(resultado.getUTCDate() + dias);
-  return resultado;
-}
-
-// Datas e horários das sessões de uma oferta, para os dias entre `de` e `ate`.
-function calcularSessoes(horarios, de, ate, vagas) {
-  const sessoes = [];
-  for (let dia = new Date(de); dia <= ate; dia = somarDias(dia, 1)) {
-    const diaSemana = DIAS_SEMANA[dia.getUTCDay()];
-    for (const horario of horarios.filter((h) => h.diaSemana === diaSemana)) {
-      sessoes.push({
-        inicio: new Date(`${dataISO(dia)}T${horario.horaInicio}:00${FUSO_BRASILIA}`),
-        fim: new Date(`${dataISO(dia)}T${horario.horaFim}:00${FUSO_BRASILIA}`),
-        vagas,
-      });
-    }
-  }
-  return sessoes;
-}
+const { hoje, somarDias } = require('../src/comum/datas');
+const { gerarSessoes } = require('../src/oferta/geracaoSessoes');
 
 async function limparBanco() {
   await prisma.frequencia.deleteMany();
@@ -46,11 +20,11 @@ async function criarOferta(monitor, dados, horarios, de, ate) {
   return prisma.oferta.create({
     data: {
       ...dados,
-      dataInicio: dataISO(de),
-      dataFim: dataISO(ate),
+      dataInicio: de,
+      dataFim: ate,
       monitorId: monitor.id,
       horarios: { create: horarios },
-      sessoes: { create: calcularSessoes(horarios, de, ate, dados.vagas) },
+      sessoes: { create: gerarSessoes({ horarios, dataInicio: de, dataFim: ate, vagas: dados.vagas }) },
     },
     include: { sessoes: { orderBy: { inicio: 'asc' } } },
   });
@@ -69,7 +43,7 @@ async function main() {
     prisma.usuario.create({ data: { nome: 'Júlia Castro', email: 'julia@estudante.ufla.br', papel: 'ALUNO' } }),
   ]);
 
-  const hoje = new Date(`${dataISO(new Date())}T00:00:00Z`);
+  const dataHoje = hoje();
 
   const aed = await criarOferta(
     carla,
@@ -84,8 +58,8 @@ async function main() {
       { diaSemana: 'TER', horaInicio: '14:00', horaFim: '16:00' },
       { diaSemana: 'QUI', horaInicio: '14:00', horaFim: '16:00' },
     ],
-    somarDias(hoje, -14),
-    somarDias(hoje, 42),
+    somarDias(dataHoje, -14),
+    somarDias(dataHoje, 42),
   );
 
   const calculo = await criarOferta(
@@ -97,8 +71,8 @@ async function main() {
       vagas: 5,
     },
     [{ diaSemana: 'QUA', horaInicio: '19:00', horaFim: '20:30' }],
-    somarDias(hoje, -14),
-    somarDias(hoje, 42),
+    somarDias(dataHoje, -14),
+    somarDias(dataHoje, 42),
   );
 
   const agora = new Date();
