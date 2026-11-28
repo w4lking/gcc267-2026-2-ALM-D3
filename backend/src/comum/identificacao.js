@@ -20,7 +20,7 @@ async function identificarUsuario(req, res, next) {
     : null;
 
   if (!usuario) {
-    throw naoAutenticado('USUARIO_NAO_ENCONTRADO', 'O usuário informado em X-Usuario-Id não existe.');
+    throw naoAutenticado('USUARIO_INVALIDO', 'O usuário informado em X-Usuario-Id não existe.');
   }
 
   req.usuario = usuario;
