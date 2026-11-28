@@ -59,13 +59,13 @@ test('cabeçalho válido anexa o usuário em req.usuario', async () => {
 
 test('cabeçalho com usuário inexistente responde 401', async () => {
   const resposta = await request(appTeste).get('/publica').set('X-Usuario-Id', '999999');
-  assertErro(resposta, 401, 'USUARIO_NAO_ENCONTRADO');
+  assertErro(resposta, 401, 'USUARIO_INVALIDO');
 });
 
 test('cabeçalho com id inválido responde 401', async () => {
   for (const valor of ['abc', '0', '-1', '1.5', '']) {
     const resposta = await request(appTeste).get('/publica').set('X-Usuario-Id', valor);
-    assertErro(resposta, 401, 'USUARIO_NAO_ENCONTRADO');
+    assertErro(resposta, 401, 'USUARIO_INVALIDO');
   }
 });
 
